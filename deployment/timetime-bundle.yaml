@@ -1,0 +1,54 @@
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: timetime
+  namespace: userx
+  labels:
+    app: timetime
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      deployment: timetime
+  template:
+    metadata:
+      labels:
+        deployment: timetime
+    spec:
+      containers:
+        - name: timetime
+          image: 'quay.io/rh_ee_swongpai/timetime:userx'
+          ports:
+            - containerPort: 8000
+              protocol: TCP
+          imagePullPolicy: Always
+      restartPolicy: Always
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: timetime-userx
+  labels:
+    app: timetime
+spec:
+  selector:
+    deployment: timetime
+  ports:
+    - protocol: TCP
+      port: 8000
+      targetPort: 8000
+---
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: timetime-userx-route
+  labels:
+    app: timetime
+spec:
+  to:
+    kind: Service
+    name: timetime-userx
+  port:
+    targetPort: 8000
+  tls:
+    termination: edge

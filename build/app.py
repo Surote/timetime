@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from datetime import datetime
 import pytz
 import json
+import os
 from prometheus_fastapi_instrumentator import Instrumentator
 from opentelemetry import trace
 from opentelemetry.sdk.resources import Resource
@@ -62,6 +63,21 @@ async def read_root():
         "message": "Welcome to FastAPI with async!",
         "instructions": "Use the /localtime/{country} endpoint to get the local time.",
         "available_countries": countries
+    }
+
+@app.get("/config")
+async def get_config():
+    """Demonstrate reading values from ConfigMap and Secret via env vars."""
+    return {
+        "configmap": {
+            "APP_NAME": os.environ.get("APP_NAME", "not set"),
+            "APP_ENV": os.environ.get("APP_ENV", "not set"),
+            "DEFAULT_TIMEZONE": os.environ.get("DEFAULT_TIMEZONE", "not set"),
+        },
+        "secret": {
+            "API_KEY": os.environ.get("API_KEY", "not set"),
+            "DB_PASSWORD": os.environ.get("DB_PASSWORD", "not set"),
+        },
     }
 
 @app.get("/localtime/{country}")
