@@ -80,6 +80,13 @@ async def get_config():
         },
     }
 
+@app.get("/pod")
+async def get_pod_name():
+    """Return the pod name via the HOSTNAME environment variable."""
+    return {
+        "pod_name": os.environ.get("HOSTNAME", "unknown"),
+    }
+
 @app.get("/localtime/{country}")
 async def get_local_time(country: str):
     """
