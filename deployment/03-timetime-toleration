@@ -1,0 +1,37 @@
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: timetime
+  namespace: userx
+  labels:
+    app: timetime
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      deployment: timetime
+  template:
+    metadata:
+      labels:
+        deployment: timetime
+    spec:
+      nodeSelector:
+        kubernetes.io/hostname: aro-cluster-wdffh-2dxv6-worker-eastus1-big-j2bmk 
+      tolerations:
+        - key: "node-role.kubernetes.io/additional"
+          operator: "Equal"
+          value: "reserved"
+          effect: "NoSchedule"
+      containers:
+        - name: timetime
+          image: 'quay.io/rh_ee_swongpai/timetime:userx'
+          ports:
+            - containerPort: 8000
+              protocol: TCP
+          imagePullPolicy: Always
+          envFrom:
+            - configMapRef:
+                name: timetime-config
+            - secretRef:
+                name: timetime-secret
+      restartPolicy: Always

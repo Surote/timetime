@@ -1,3 +1,4 @@
+# replace <SELECT_NODE_NAME> with the node name you want to schedule the pod on
 kind: Deployment
 apiVersion: apps/v1
 metadata:
@@ -15,6 +16,8 @@ spec:
       labels:
         deployment: timetime
     spec:
+      nodeSelector:
+        kubernetes.io/hostname: <SELECT_NODE_NAME>
       containers:
         - name: timetime
           image: 'quay.io/rh_ee_swongpai/timetime:userx'
