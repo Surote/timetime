@@ -1,0 +1,55 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: userx-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+---
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: timetime
+  labels:
+    app: timetime
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      deployment: timetime
+  template:
+    metadata:
+      labels:
+        deployment: timetime
+    spec:
+      nodeSelector:
+        kubernetes.io/hostname: aro-cluster-wdffh-2dxv6-worker-eastus1-big-j2bmk 
+      tolerations:
+        - key: "node-role.kubernetes.io/additional"
+          operator: "Equal"
+          value: "reserved"
+          effect: "NoSchedule"
+      containers:
+        - name: timetime
+          image: 'quay.io/rh_ee_swongpai/timetime:userx'
+          ports:
+            - containerPort: 8000
+              protocol: TCP
+          imagePullPolicy: Always
+          envFrom:
+            - configMapRef:
+                name: timetime-config
+            - secretRef:
+                name: timetime-secret
+          volumeMounts:
+          - mountPath: /data
+            name: data-volume
+      restartPolicy: Always 
+
+      volumes:
+      - name: data-volume
+        persistentVolumeClaim:
+          claimName: userx-pvc
